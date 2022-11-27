@@ -4,14 +4,11 @@ import com.example.wordsfromfilm.models.User;
 import com.example.wordsfromfilm.repositories.UsersRepository;
 import com.example.wordsfromfilm.security.MongoUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
-public class MongoAuthUserDetailService implements UserDetailsService {
+public class MongoAuthUserDetailService {
 
     private final UsersRepository usersRepository;
 
@@ -20,12 +17,9 @@ public class MongoAuthUserDetailService implements UserDetailsService {
         this.usersRepository = usersRepository;
     }
 
-    @Override
     public MongoUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = usersRepository.findByUsername(username);
-
-        if (user.isEmpty())  throw new UsernameNotFoundException("User not found.");
-
-        return new MongoUserDetails(user.get());
+        User user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        return new MongoUserDetails(user);
     }
 }
